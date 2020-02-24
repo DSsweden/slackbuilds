@@ -83,7 +83,7 @@ cd -
 cd Python
   sed -i "1613i\    pro.write('INCLUDEPATH += /usr/include/qt5/QtWidgets\\\n')" configure.py
   sed -i "1613i\    pro.write('INCLUDEPATH += /usr/include/qt5/QtPrintSupport\\\n')" configure.py
-  python3 configure.py --pyqt=PyQt5 -c --qmake /usr/bin/qmake-qt5 -n $PKG/usr/include/qt5 -o $PKG/usr/lib${LIBDIRSUFFIX} --sip=/usr/bin/python3-sip --sip-incdir=/usr/include/python$(python3 -c "from distutils.sysconfig import get_python_version; print(get_python_version())")
+  python3 configure.py --pyqt=PyQt5 -c --qmake /usr/bin/qmake-qt5 -n $PKG/usr/include/qt5 -o $PKG/usr/lib${LIBDIRSUFFIX} --sip=/usr/bin/sip3 --sip-incdir=/usr/include/python$(python3 -c "from distutils.sysconfig import get_python_version; print(get_python_version())")
   make install INSTALL_ROOT=$PKG -j1
 cd -
 
