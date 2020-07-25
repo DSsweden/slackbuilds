@@ -33,7 +33,7 @@
 # 2014-10-23 - changed to build rbsec's fork from github
 
 PRGNAM=sslscan
-VERSION=${VERSION:-1.11.13}
+VERSION=${VERSION:-2.0.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
 
@@ -66,7 +66,7 @@ rm -rf $PKG
 mkdir -p $TMP $PKG $OUTPUT
 cd $TMP
 rm -rf $PRGNAM-$VERSION-rbsec
-tar xvf $CWD/$PRGNAM-$VERSION-rbsec.tar.gz
+tar xvf $CWD/$PRGNAM-$VERSION.tar.gz
 cd $PRGNAM-$VERSION-rbsec
 
 sed -i 's/^\(\.openssl.is.fresh:\).*$/\1/' Makefile
@@ -75,7 +75,7 @@ sed -i "s/^GIT_VERSION = .*$/GIT_VERSION = $VERSION/" Makefile
 STATIC=${STATIC:-yes}
 
 if [ "$STATIC" = "yes" ] ; then
-  OPENSSLVERSION=${OPENSSLVERSION:-83abb7af5cee7dd1c9ab500a10a776c586a18f1b}
+  OPENSSLVERSION=${OPENSSLVERSION:-e2e09d9fba1187f8d6aafaa34d4172f56f1ffb72}
   tar xf "$CWD/openssl-$OPENSSLVERSION.tar.gz"
   mv "openssl-$OPENSSLVERSION" openssl
 fi
