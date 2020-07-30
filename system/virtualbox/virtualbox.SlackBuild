@@ -2,7 +2,7 @@
 
 # Slackware build script for virtualbox-ose
 
-# Copyright 2008-2018 Heinz Wiesinger, Amsterdam, The Netherlands
+# Copyright 2008-2020 Heinz Wiesinger, Amsterdam, The Netherlands
 # Copyright 2008 Mauro Giachero <mauro.giachero@gmail.com>
 # All rights reserved.
 #
@@ -25,7 +25,7 @@
 
 PRGNAM=virtualbox
 SRCNAM=VirtualBox
-VERSION=${VERSION:-5.2.8}
+VERSION=${VERSION:-6.1.10}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}
 
@@ -64,10 +64,12 @@ fi
 
 # Support for the Qt & SDL frontends
 if [ "${HEADLESS:-no}" = "no" ]; then
-  guiapp="VirtualBox VBoxSDL"
+  guiapp="VirtualBox VirtualBoxVM VBoxSDL"
+  suidgui="VirtualBoxVM VBoxSDL"
 else
   gui+=" --build-headless"
   guiapp=""
+  suidgui=""
 fi
 
 # Enable building of java bindings
@@ -128,15 +130,15 @@ find -L . \
 GROUP="vboxusers"
 MODE="755"
 
+# Fix building against qt-15.x, patch from gentoo
+patch -p1 -i $CWD/virtualbox-6.1.6-qt-5.15.patch
+
 # We don't want an init-script building kernel modules.
 # Use virtualbox-kernel.SlackBuild for this.
 patch -d src/VBox/Installer/linux -i $CWD/vboxdrv.sh-setup.diff
 
 # Fix wrong path to rdesktop-vrdp-keymaps
 patch -p1 -i $CWD/006-rdesktop-vrdp-keymap-path.patch
-
-# Patch for python-3.7
-patch -p1 < $CWD/python_3.7.patch
 
 # Remove gcc version check
 sed -i 's/^check_gcc$/#check_gcc/' ./configure
@@ -222,9 +224,8 @@ cd out/linux.$BUILDDIR/release/bin/
   mv $PKG/usr/lib$LIBDIRSUFFIX/virtualbox/VBox.sh $PKG/usr/lib$LIBDIRSUFFIX/virtualbox/VBox
 cd $TMP/$SRCNAM-${VERSION}
 
-for i in VBoxManage vboxmanage VBoxHeadless \
-  vboxheadless VBoxVRDP VBoxBalloonCtrl vboxballoonctrl \
-  VBoxAutostart vboxautostart $guiapp $vboxwebsrv; do
+for i in VBoxManage VBoxHeadless VBoxVRDP VBoxBalloonCtrl VBoxBugReport \
+  VBoxAutostart $guiapp $vboxwebsrv; do
   ln -s /usr/lib$LIBDIRSUFFIX/virtualbox/VBox $PKG/usr/bin/$i
 done
 
@@ -233,6 +234,9 @@ if [ "${HEADLESS:-no}" = "no" ]; then
     ln -s /usr/lib$LIBDIRSUFFIX/virtualbox/VBox $PKG/usr/bin/$i
   done
 fi
+
+ln -s /usr/lib$LIBDIRSUFFIX/virtualbox/vbox-img $PKG/usr/bin/
+ln -s /usr/lib$LIBDIRSUFFIX/virtualbox/vboximg-mount $PKG/usr/bin/
 
 if [ "$vboxwebsrv" = "vboxwebsrv" ]; then
   mkdir -p $PKG/var/{lib,log}/vboxweb
@@ -245,7 +249,7 @@ if [ "$vboxwebsrv" = "vboxwebsrv" ]; then
 fi
 
 if [ "$harden" = "--enable-hardening" ]; then
-  for i in VBoxHeadless $guiapp VBoxNetDHCP VBoxNetAdpCtl; do
+  for i in VBoxHeadless $suidgui VBoxNetDHCP VBoxNetAdpCtl VBoxNetNAT; do
     chmod 4711 $PKG/usr/lib$LIBDIRSUFFIX/virtualbox/$i
   done
 fi
