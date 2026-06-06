@@ -3,6 +3,7 @@
 # Slackware build script for <hyfetch>
 
 # Copyright <2023-2025> <Luna Jernberg <droidbittin@gmail.com> <Sweden>
+# Copyright <2026> <MDKDIO> <slackinfo@slackwarelinux.se <Sweden>
 # All rights reserved.
 #
 #
@@ -29,7 +30,7 @@
 cd $(dirname $0) ; CWD=$(pwd)
 
 PRGNAM=hyfetch		
-VERSION=${VERSION:-2.0.2}
+VERSION=${VERSION:-2.1.0}
 BUILD=${BUILD:-1}
 TAG=${TAG:-_SBo}		
 PKGTYPE=${PKGTYPE:-tgz}
@@ -84,10 +85,8 @@ find -L . \
   -o -perm 440 -o -perm 400 \) -exec chmod 644 {} \;
 
 
-python3 setup.py install --root=$PKG
-
-find $PKG -print0 | xargs -0 file | grep -e "executable" -e "shared object" | grep ELF \
-  | cut -f 1 -d : | xargs strip --strip-unneeded 2> /dev/null || true
+python3 -m build --no-isolation
+python3 -m installer -d "$PKG" dist/*.whl
 
 mkdir -p $PKG/usr/doc/$PRGNAM-$VERSION
 cp -a \
